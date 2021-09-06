@@ -16,6 +16,8 @@ from kucoin.client import Market
 import threading
 import sys 
 from threading import Timer
+from pprint import pprint
+
 
 class RepeatedTimer(object):
     def __init__(self, interval, function, *args, **kwargs):
@@ -70,12 +72,38 @@ def get_ticker(ticker):
     print(ticker,':',price)
     cache_price(price)
 
+def get_tickers():
+    tickers = CLIENT.get_all_tickers()['ticker']
+    f = open("tickers.txt", "a")
+    for ticker in tickers:
+        f.write(ticker['symbol']+'\n')
+    f.close()
+
+def find_pairs(ticker):
+    pairs = []
+    get_tickers()
+    f = open("tickers.txt", "r").read().split('\n')
+    for x in f:
+        if ticker in x.split('-')[0].lower():
+            pairs.append(x)
+    pprint(pairs)
+
+    return pairs
+
+
 
 @click.command()
-@click.option('-t', '--ticker', help='BTC-USDT',required=True)
-
-def cli(ticker):
-    alert = RepeatedTimer(2, get_ticker, ticker)
+@click.option('-t', '--ticker', help='get specific ticker ie BTC-USDT',required=False)
+@click.option('-p', '--pair', help='find all pair associated with ticker',required=False)
+@click.option('--gettickers', is_flag=True, help='get all tickers outputs everything in tickers.txt')
+def cli(ticker, gettickers,pair):
+    if ticker:
+        alert = RepeatedTimer(2, get_ticker, ticker)
+    if gettickers:
+        get_tickers()
+    if pair:
+        find_pairs(pair)
+    
     
 
 if __name__ == '__main__':
