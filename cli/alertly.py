@@ -17,6 +17,8 @@ import threading
 import sys 
 from threading import Timer
 from pprint import pprint
+from alert import Alert
+from conditions import Conditions
 
 
 class RepeatedTimer(object):
@@ -35,7 +37,6 @@ class RepeatedTimer(object):
         self.start()
         self.function(*self.args, **self.kwargs)
         
-
     def start(self):
         if not self.is_running:
             self._timer = Timer(self.interval, self._run)
@@ -90,13 +91,30 @@ def find_pairs(ticker):
 
     return pairs
 
+def create_alert(ticker,alert_def):
+
+    with open('alerts.json') as json_file:
+        data = json.load(json_file)
+        data.append(alert_def)
+
+        f = open("alerts.json", "w")
+        f.write(json.dumps(data))
+        f.close()
+
+    return 0
+
+def create_condition(self):
+    return 0
+
 
 
 @click.command()
-@click.option('-t', '--ticker', help='get specific ticker ie BTC-USDT',required=False)
+@click.option('-t', '--ticker', help='get specific ticker ie. BTC-USDT',required=False)
 @click.option('-p', '--pair', help='find all pair associated with ticker',required=False)
-@click.option('--gettickers', is_flag=True, help='get all tickers outputs everything in tickers.txt')
-def cli(ticker, gettickers,pair):
+@click.option('-a', '--createalert', help='create alert',required=False)
+@click.option('-c', '--createcondition', help='create condition',required=False)
+@click.option('--gettickers', is_flag=True, help='get all tickers outputs everything in tickers.txt',required=False)
+def cli(ticker, gettickers,pair, createalert, createcondition):
     if ticker:
         alert = RepeatedTimer(2, get_ticker, ticker)
     if gettickers:
@@ -108,6 +126,9 @@ def cli(ticker, gettickers,pair):
 
 if __name__ == '__main__':
     cli()
-    # alert = RepeatedTimer(10, get_ticker, 'BTC-USDT')
+    # # alert = RepeatedTimer(10, get_ticker, BTC-USDT')
+    # alert = Alert('Bitcoin','BTC-USDT')
+    # print(alert)
+    # create_alert('BTC-USDT',alert.__dict__)
     
     
